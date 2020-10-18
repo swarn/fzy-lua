@@ -10,9 +10,9 @@ local SCORE_MAX = math.huge
 local SCORE_MIN = -math.huge
 local MATCH_MAX_LENGTH = 1024
 
-local M = {}
+local fzy = {}
 
-function M.has_match(needle, haystack)
+function fzy.has_match(needle, haystack)
     local needle = string.lower(needle)
     local haystack = string.lower(haystack)
 
@@ -96,7 +96,7 @@ local function compute(needle, haystack, D, M)
     end
 end
 
-function M.score(needle, haystack)
+function fzy.score(needle, haystack)
     local n = string.len(needle)
     local m = string.len(haystack)
 
@@ -115,7 +115,7 @@ function M.score(needle, haystack)
 
 end
 
-function M.positions(needle, haystack)
+function fzy.positions(needle, haystack)
     local n = string.len(needle)
     local m = string.len(haystack)
 
@@ -156,16 +156,16 @@ function M.positions(needle, haystack)
 end
 
 
-M.SCORE_GAP_LEADING = SCORE_GAP_LEADING
-M.SCORE_GAP_TRAILING = SCORE_GAP_TRAILING
-M.SCORE_GAP_INNER = SCORE_GAP_INNER
-M.SCORE_MATCH_CONSECUTIVE = SCORE_MATCH_CONSECUTIVE
-M.SCORE_MATCH_SLASH = SCORE_MATCH_SLASH
-M.SCORE_MATCH_WORD = SCORE_MATCH_WORD
-M.SCORE_MATCH_CAPITAL = SCORE_MATCH_CAPITAL
-M.SCORE_MATCH_DOT = SCORE_MATCH_DOT
-M.SCORE_MAX = SCORE_MAX
-M.SCORE_MIN = SCORE_MIN
-M.MATCH_MAX_LENGTH = MATCH_MAX_LENGTH
+fzy.SCORE_GAP_LEADING = SCORE_GAP_LEADING
+fzy.SCORE_GAP_TRAILING = SCORE_GAP_TRAILING
+fzy.SCORE_GAP_INNER = SCORE_GAP_INNER
+fzy.SCORE_MATCH_CONSECUTIVE = SCORE_MATCH_CONSECUTIVE
+fzy.SCORE_MATCH_SLASH = SCORE_MATCH_SLASH
+fzy.SCORE_MATCH_WORD = SCORE_MATCH_WORD
+fzy.SCORE_MATCH_CAPITAL = SCORE_MATCH_CAPITAL
+fzy.SCORE_MATCH_DOT = SCORE_MATCH_DOT
+fzy.SCORE_MAX = SCORE_MAX
+fzy.SCORE_MIN = SCORE_MIN
+fzy.MATCH_MAX_LENGTH = MATCH_MAX_LENGTH
 
-return M
+return fzy
