@@ -67,15 +67,23 @@ local function compute(needle, haystack, D, M)
     local lower_needle = string.lower(needle)
     local lower_haystack = string.lower(haystack)
 
+    -- Because lua only grants access to chars through substring extraction,
+    -- get all the characters from the haystack once now, to reuse below.
+    local haystack_chars = {}
+    for i=1,m do
+        haystack_chars[i] = lower_haystack:sub(i, i)
+    end
+
     for i=1,n do
         D[i] = {}
         M[i] = {}
 
         local prev_score = SCORE_MIN
         local gap_score = i == n and SCORE_GAP_TRAILING or SCORE_GAP_INNER
+        local needle_char = lower_needle:sub(i, i)
 
         for j=1,m do
-            if lower_needle:sub(i, i) == lower_haystack:sub(j, j) then
+            if needle_char == haystack_chars[j] then
                 local score = SCORE_MIN
                 if i == 1 then
                     score = ((j - 1) * SCORE_GAP_LEADING) + match_bonus[j]
