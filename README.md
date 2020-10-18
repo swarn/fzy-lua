@@ -28,8 +28,8 @@ fzy.score("amuser", "app/models/customer.rb") -- 3.655
 `positions(needle, haystack)`
 
 ``` lua
-fzy.positions("amuser", "app/models/user.rb")     // { 1, 5, 12, 13, 14, 15 }
-fzy.positions("amuser", "app/models/customer.rb") // { 1, 5, 13, 14, 18, 19 }
+fzy.positions("amuser", "app/models/user.rb")     -- { 1, 5, 12, 13, 14, 15 }
+fzy.positions("amuser", "app/models/customer.rb") -- { 1, 5, 13, 14, 18, 19 }
 ```
 
 NB: `score` and `positions` must be called with matching needle and haystack,
