@@ -108,9 +108,7 @@ function fzy.score(needle, haystack)
     local n = string.len(needle)
     local m = string.len(haystack)
 
-    if n == 0 or m == 0 then
-        return SCORE_MIN
-    elseif m > MATCH_MAX_LENGTH or n > MATCH_MAX_LENGTH then
+    if n == 0 or m == 0 or m > MATCH_MAX_LENGTH or n > MATCH_MAX_LENGTH then
         return SCORE_MIN
     elseif n == m then
         return SCORE_MAX
@@ -120,18 +118,15 @@ function fzy.score(needle, haystack)
         compute(needle, haystack, D, M)
         return M[n][m]
     end
-
 end
 
 function fzy.positions(needle, haystack)
     local n = string.len(needle)
     local m = string.len(haystack)
 
-    if n == 0 or m == 0 or m > MATCH_MAX_LENGTH then
-        return positions
-    end
-
-    if n == m then
+    if n == 0 or m == 0 or m > MATCH_MAX_LENGTH or n > MATCH_MAX_LENGTH then
+        return {}
+    elseif n == m then
         local consecutive = {}
         for i=1,n do
             consecutive[i] = i
