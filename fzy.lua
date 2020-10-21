@@ -161,17 +161,24 @@ function fzy.positions(needle, haystack)
   return positions
 end
 
+function fzy.get_score_min()
+  return SCORE_MIN
+end
 
-fzy.SCORE_GAP_LEADING = SCORE_GAP_LEADING
-fzy.SCORE_GAP_TRAILING = SCORE_GAP_TRAILING
-fzy.SCORE_GAP_INNER = SCORE_GAP_INNER
-fzy.SCORE_MATCH_CONSECUTIVE = SCORE_MATCH_CONSECUTIVE
-fzy.SCORE_MATCH_SLASH = SCORE_MATCH_SLASH
-fzy.SCORE_MATCH_WORD = SCORE_MATCH_WORD
-fzy.SCORE_MATCH_CAPITAL = SCORE_MATCH_CAPITAL
-fzy.SCORE_MATCH_DOT = SCORE_MATCH_DOT
-fzy.SCORE_MAX = SCORE_MAX
-fzy.SCORE_MIN = SCORE_MIN
-fzy.MATCH_MAX_LENGTH = MATCH_MAX_LENGTH
+function fzy.get_score_max()
+  return SCORE_MAX
+end
+
+function fzy.get_max_length()
+  return MATCH_MAX_LENGTH
+end
+
+function fzy.get_score_floor()
+  return MATCH_MAX_LENGTH * SCORE_GAP_INNER
+end
+
+function fzy.get_score_ceiling()
+  return MATCH_MAX_LENGTH * SCORE_MATCH_CONSECUTIVE
+end
 
 return fzy

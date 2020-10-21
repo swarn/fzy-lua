@@ -5,9 +5,9 @@ local score = fzy.score
 local has_match = fzy.has_match
 local positions = fzy.positions
 
-local SCORE_MIN = fzy.SCORE_MIN
-local SCORE_MAX = fzy.SCORE_MAX
-local MATCH_MAX_LENGTH = fzy.MATCH_MAX_LENGTH
+local SCORE_MIN = fzy.get_score_min()
+local SCORE_MAX = fzy.get_score_max()
+local MATCH_MAX_LENGTH = fzy.get_max_length()
 
 -- A fun little fluent interface for assertions
 local function query(state, args, _)
@@ -124,6 +124,13 @@ describe("scoring", function()
     it("rewards matching camelCase correctly", function()
         assert.query("a").closerTo("bA").thanTo("ba")
         assert.query("a").closerTo("baA").thanTo("ba")
+    end)
+    it("scores in the prescribed bounds", function()
+        local aaa = string.rep("a", MATCH_MAX_LENGTH)
+        local aa = string.rep("a", MATCH_MAX_LENGTH - 1)
+        assert.True(fzy.get_score_ceiling() > score(aa, aaa))
+        local aba = "a" .. string.rep("b", MATCH_MAX_LENGTH - 2) .. "a"
+        assert.True(fzy.get_score_floor() < score("aa", aba))
     end)
     it("ignores really long strings", function()
         local longstring = string.rep("a", MATCH_MAX_LENGTH + 1)
