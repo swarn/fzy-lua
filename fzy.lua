@@ -13,12 +13,12 @@ local MATCH_MAX_LENGTH = 1024
 local fzy = {}
 
 function fzy.has_match(needle, haystack)
-  local needle = string.lower(needle)
-  local haystack = string.lower(haystack)
+  needle = string.lower(needle)
+  haystack = string.lower(haystack)
 
   local j = 1
   for i = 1, string.len(needle) do
-    j = string.find(haystack, needle:sub(i, i), j)
+    j = string.find(haystack, needle:sub(i, i), j, true)
     if not j then
       return false
     else
@@ -37,13 +37,15 @@ local function is_upper(c)
   return c:match("%u")
 end
 
+local separator = package.config:sub(1,1)
+
 local function precompute_bonus(haystack)
   local match_bonus = {}
 
-  local last_char = "/"
+  local last_char = separator
   for i = 1, string.len(haystack) do
     local this_char = haystack:sub(i, i)
-    if last_char == "/" then
+    if last_char == separator then
       match_bonus[i] = SCORE_MATCH_SLASH
     elseif last_char == "-" or last_char == "_" or last_char == " " then
       match_bonus[i] = SCORE_MATCH_WORD
