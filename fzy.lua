@@ -12,6 +12,7 @@ local MATCH_MAX_LENGTH = 1024
 
 local fzy = {}
 
+-- Return `true` if `needle` is a subsequence of `haystack`.
 function fzy.has_match(needle, haystack)
   needle = string.lower(needle)
   haystack = string.lower(haystack)
@@ -107,6 +108,22 @@ local function compute(needle, haystack, D, M)
   end
 end
 
+-- Compute a matching score for two strings.
+--
+-- Where `needle` is a subsequence of `haystack`, this returns a score
+-- measuring the quality of their match. Better matches get higher scores.
+--
+-- `needle` must be a subsequence of `haystack`, the result is undefined
+-- otherwise. Call `has_match()` before calling `score`.
+--
+-- returns `get_score_min()` where a or b are longer than `get_max_length()`
+--
+-- returns `get_score_min()` when a or b are empty strings.
+--
+-- returns `get_score_max()` when a and b are the same string.
+--
+-- When the return value is not covered by the above rules, it is a number
+-- in the range (`get_score_floor()`, `get_score_ceiling()`)
 function fzy.score(needle, haystack)
   local n = string.len(needle)
   local m = string.len(haystack)
@@ -123,6 +140,9 @@ function fzy.score(needle, haystack)
   end
 end
 
+-- Find the locations where fzy matched a string.
+--
+-- Returns an array of indices.
 function fzy.positions(needle, haystack)
   local n = string.len(needle)
   local m = string.len(haystack)
