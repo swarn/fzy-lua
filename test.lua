@@ -1,4 +1,5 @@
 local fzy = require('fzy')
+local say = require('say')
 
 local score = fzy.score
 local has_match = fzy.has_match
@@ -6,21 +7,44 @@ local positions = fzy.positions
 
 local SCORE_MIN = fzy.SCORE_MIN
 local SCORE_MAX = fzy.SCORE_MAX
-local SCORE_GAP_LEADING = fzy.SCORE_GAP_LEADING
-local SCORE_GAP_TRAILING = fzy.SCORE_GAP_TRAILING
-local SCORE_GAP_INNER = fzy.SCORE_GAP_INNER
-local SCORE_MATCH_CONSECUTIVE = fzy.SCORE_MATCH_CONSECUTIVE
-local SCORE_MATCH_SLASH = fzy.SCORE_MATCH_SLASH
-local SCORE_MATCH_WORD = fzy.SCORE_MATCH_WORD
-local SCORE_MATCH_CAPITAL = fzy.SCORE_MATCH_CAPITAL
-local SCORE_MATCH_DOT = fzy.SCORE_MATCH_DOT
 local MATCH_MAX_LENGTH = fzy.MATCH_MAX_LENGTH
 
--- tolerance for floating-point equivalence
-local e = 0.000001
+-- A fun little fluent interface for assertions
+local function query(state, args, _)
+    assert(args.n > 0, "No query provided to the query-modifier")
+    assert(rawget(state, "query") == nil, "Query already set")
+    rawset(state, "query", args[1])
+end
+
+local function closerTo(state, args, _)
+    assert(args.n > 0, "No sample provided to the closerTo-modifier")
+    assert(rawget(state, "closer") == nil, "Closer value already set")
+    rawset(state, "closer", args[1])
+end
+
+local function thanTo(state, args, _)
+    assert(args.n > 0, "No sample provided to the thanTo-modifier")
+    local queryStr = rawget(state, "query")
+    local betterStr = rawget(state, "closer")
+    local worseStr = args[1]
+
+    args[1] = queryStr
+    args[2] = betterStr
+    args[3] = worseStr
+    return score(queryStr, betterStr) > score(queryStr, worseStr)
+end
+
+say:set("assertion.thanTo.positive",
+    [[Expected %s to be closer to "%s" than to "%s", but it wasn't.]])
+say:set("assertion.thanTo.negative",
+    [[Expected %s to be farther from "%s" than from "%s", but it wasn't.]])
+
+assert:register("assertion", "thanTo", thanTo, "assertion.thanTo.positive",
+    "assertion.thanTo.negative")
+assert:register("modifier", "query", query)
+assert:register("modifier", "closerTo", closerTo)
 
 
-local has_match = fzy.has_match
 describe("matching", function()
     it("exact matches", function()
         assert.True(has_match("a", "a"))
@@ -58,26 +82,30 @@ end)
 
 describe("scoring", function()
     it("prefers beginnings of words", function()
-        assert.True(score("amor", "app/models/order") > score("amor", "app/models/zrder"))
+        assert.query("amor").closerTo("app/models/order").thanTo("app/models/zrder")
+        assert.query("a").closerTo(".a").thanTo("ba")
     end)
     it("prefers consecutive letters", function()
-        assert.True(score("amo", "app/m/foo") < score("amo", "app/models/foo"))
-        assert.True(score("erf", "terrific") < score("erf", "perfect"))
+        assert.query("amo").closerTo("app/models/foo").thanTo("app/m/foo")
+        assert.query("amo").closerTo("app/models/foo").thanTo("app/m/o")
+        assert.query("erf").closerTo("perfect").thanTo("terrific")
+        assert.query("abc").closerTo("*ab**c*").thanTo("*a*b*c*")
     end)
     it("prefers contiguous over letter following period", function()
-        assert.True(score("gemfil", "Gemfile.lock") < score("gemfil", "Gemfile"))
+        assert.query("gemfil").closerTo("Gemfile").thanTo("Gemfile.lock")
     end)
     it("prefers shorter matches", function()
-        assert.True(score("abce", "abcdef") > score("abce", "abc de"));
-        assert.True(score("abc", "    a b c ") > score("abc", " a  b  c "));
-        assert.True(score("abc", " a b c    ") > score("abc", " a  b  c "));
+        assert.query("abce").closerTo("abcdef").thanTo("abc de")
+        assert.query("abc").closerTo("    a b c ").thanTo(" a  b  c ")
+        assert.query("abc").closerTo(" a b c    ").thanTo(" a  b  c ")
+        assert.query("aa").closerTo("*a*a*").thanTo("*a**a")
     end)
     it("prefers shorter candidates", function()
-        assert.True(score("test", "tests") > score("test", "testing"))
+        assert.query("test").closerTo("tests").thanTo("testing")
     end)
     it("prefers matches at the beginning", function()
-        assert.True(score("ab", "abbb") > score("ab", "babb"))
-        assert.True(score("test", "testing") > score("test", "/testing"))
+        assert.query("ab").closerTo("abbb").thanTo("babb")
+        assert.query("test").closerTo("testing").thanTo("/testing")
     end)
     it("returns the max score for exact matches", function()
         assert.are.same(score("abc", "abc"), SCORE_MAX)
@@ -88,41 +116,14 @@ describe("scoring", function()
         assert.are.same(score("", "a"), SCORE_MIN)
         assert.are.same(score("", "bb"), SCORE_MIN)
     end)
-    it("penalizes gaps correctly", function()
-        assert.near(SCORE_GAP_LEADING, score("a", "*a"), e)
-        assert.near(SCORE_GAP_LEADING * 2, score("a", "*ba"), e)
-        assert.near(SCORE_GAP_LEADING * 2 + SCORE_GAP_TRAILING, score("a", "**a*"), e)
-        assert.near(SCORE_GAP_LEADING * 2 + SCORE_GAP_TRAILING * 2,
-            score("a", "**a**"), e)
-        assert.near(SCORE_GAP_LEADING * 2 + SCORE_MATCH_CONSECUTIVE +
-            SCORE_GAP_TRAILING * 2, score("aa", "**aa**"), e)
-        assert.near(SCORE_GAP_LEADING * 2 + SCORE_GAP_INNER +
-            SCORE_GAP_TRAILING * 2, score("aa", "**a*a**"), e)
-    end)
-    it("rewards consecutive matches correctly", function()
-        assert.near(score("aa", "*aa"), SCORE_GAP_LEADING + SCORE_MATCH_CONSECUTIVE, e)
-        assert.near(score("aaa", "*aaa"), SCORE_GAP_LEADING +
-            SCORE_MATCH_CONSECUTIVE * 2, e)
-        assert.near(score("aaa", "*a*aa"), SCORE_GAP_LEADING + SCORE_GAP_INNER +
-            SCORE_MATCH_CONSECUTIVE, e);
-    end)
     it("rewards matching '/' correctly", function()
-        assert.near(score("a", "/a"), SCORE_GAP_LEADING + SCORE_MATCH_SLASH, e)
-        assert.near(score("a", "*/a"), SCORE_GAP_LEADING * 2 + SCORE_MATCH_SLASH, e)
-        assert.near(score("aa", "a/aa"), SCORE_GAP_LEADING * 2 + SCORE_MATCH_SLASH +
-            SCORE_MATCH_CONSECUTIVE, e)
+        assert.query("a").closerTo("*/a").thanTo("**a")
+        assert.query("a").closerTo("**/a").thanTo("*a")
+        assert.query("aa").closerTo("a/aa").thanTo("a/a")
     end)
     it("rewards matching camelCase correctly", function()
-        assert.near(score("a", "bA"), SCORE_GAP_LEADING + SCORE_MATCH_CAPITAL, e)
-        assert.near(score("a", "baA"), SCORE_GAP_LEADING * 2 + SCORE_MATCH_CAPITAL, e)
-        assert.near(score("aa", "baAa"), SCORE_GAP_LEADING * 2 + SCORE_MATCH_CAPITAL +
-            SCORE_MATCH_CONSECUTIVE, e)
-    end)
-    it("rewards matching '.' correctly", function()
-        assert.near(score("a", ".a"), SCORE_GAP_LEADING + SCORE_MATCH_DOT, e)
-        assert.near(score("a", "*a.a"), SCORE_GAP_LEADING * 3 + SCORE_MATCH_DOT, e)
-        assert.near(score("a", "*a.a"), SCORE_GAP_LEADING + SCORE_GAP_INNER +
-            SCORE_MATCH_DOT, e)
+        assert.query("a").closerTo("bA").thanTo("ba")
+        assert.query("a").closerTo("baA").thanTo("ba")
     end)
     it("ignores really long strings", function()
         local longstring = string.rep("a", MATCH_MAX_LENGTH + 1)
@@ -139,6 +140,8 @@ describe("positioning", function()
     end)
     it("favors word beginnings", function()
         assert.same({1, 5, 12, 13}, positions("amor", "app/models/order"))
+        assert.same({3, 4}, positions("aa", "baAa"))
+        assert.same({4}, positions("a", "ba.a"))
     end)
     it("works when there are no bonuses", function()
         assert.same({2, 4}, positions("as", "tags"))
