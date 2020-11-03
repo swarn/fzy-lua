@@ -34,6 +34,17 @@ fzy.positions("amuser", "app/models/customer.rb") -- { 1, 5, 13, 14, 18, 19 }
 --                       ^   ^       ^^   ^^
 ```
 
+`fzy` is case-insensitive by default, which can be disabled:
+
+``` lua
+fzy.match("acE", "abcde")              -- true
+fzy.match("acE", "abcde", true)        -- false
+fzy.positions("ABC", "abcA*B*C")       -- {1, 2, 3}
+--                    ^^^
+fzy.positions("ABC", "abcA*B*C", true) -- {4, 6, 8}
+--                       ^ ^ ^
+```
+
 NB: `score` and `positions` must be called with matching needle and haystack,
 doing otherwise is undefined. The caller needs to check that there is a match
 using the `has_match` function.
