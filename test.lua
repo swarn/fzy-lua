@@ -4,6 +4,7 @@ local say = require('say')
 local score = fzy.score
 local has_match = fzy.has_match
 local positions = fzy.positions
+local score_and_positions = fzy.score_and_positions
 
 local SCORE_MIN = fzy.get_score_min()
 local SCORE_MAX = fzy.get_score_max()
@@ -189,3 +190,17 @@ describe("positioning", function()
     end)
 end)
 
+describe("score_and_positions", function()
+    it("works under usual conditions", function()
+        s, p = score_and_positions("ab", "aaabbb")
+        assert.same(s, score("ab", "aaabbb"))
+    end)
+    it("works for exact matches", function()
+        s, p = score_and_positions("aaa", "aaa")
+        assert.same(s, score("aaa", "aaa"))
+    end)
+    it("works for empty strings", function()
+        s, p = score_and_positions("", "aaa")
+        assert.same(s, score("", "aaa"))
+    end)
+end)

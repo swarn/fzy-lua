@@ -49,6 +49,9 @@ NB: `score` and `positions` must be called with matching needle and haystack,
 doing otherwise is undefined. The caller needs to check that there is a match
 using the `has_match` function.
 
+If you want the results of both `score` and `positions`, call the
+creatively-named `score_and_positions` function to avoid redundant computation.
+
 ## Testing
 
 ```
@@ -59,3 +62,7 @@ busted test.lua
 
 John Hawthorn wrote the original `fzy`, and this code is *very* similar to
 his `fzy.js` implementation.
+
+[Rom Grk](https://github.com/romgrk) made several useful suggestions, and has a
+Lua [wrapper](https://github.com/romgrk/fzy-lua-native) of a C implementation
+of `fzy` that is _much_ faster than this pure-Lua version.
