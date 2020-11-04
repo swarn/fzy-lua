@@ -1,8 +1,8 @@
 package = "fzy"
-version = "0.1-1"
+version = "0.2-1"
 source = {
   url = "git://github.com/swarn/fzy-lua",
-  tag = "v0.1"
+  tag = "v0.2"
 }
 description = {
   summary = "A fuzzy string-matching algorithm",
@@ -20,7 +20,10 @@ build = {
   type = "builtin",
   modules = {
     fzy = "src/fzy.lua",
+    fzy_lua = "src/fzy_lua.lua",
+    fzy_native = "src/fzy_native.c"
   },
+
   copy_directories = { "test" }
 }
 
