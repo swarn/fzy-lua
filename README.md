@@ -1,4 +1,4 @@
-# fzy.lua
+# fzy-lua
 
 A lua port of [fzy](https://github.com/jhawthorn/fzy)'s fuzzy matching
 algorithm.
@@ -55,7 +55,7 @@ creatively-named `score_and_positions` function to avoid redundant computation.
 ## Testing
 
 ```
-busted test.lua
+busted test/test.lua
 ```
 
 ## Thanks
