@@ -14,6 +14,12 @@ From the original `fzy`:
 > consecutive letters and starts of words. This allows matching using acronyms
 > or different parts of the path.
 
+## Install
+
+``` sh
+luarocks install fzy
+```
+
 ## Usage
 
 `score(needle, haystack)`
