@@ -1,4 +1,4 @@
-/* fzy-native.h
+/* match.h
  * c interface to fzy matching
  *
  * original code by John Hawthorn, https://github.com/jhawthorn/fzy

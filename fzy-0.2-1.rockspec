@@ -21,7 +21,7 @@ build = {
   modules = {
     fzy = "src/fzy.lua",
     fzy_lua = "src/fzy_lua.lua",
-    fzy_native = "src/fzy_native.c"
+    fzy_native = {"src/fzy_native.c"}
   },
 
   copy_directories = { "test" }
