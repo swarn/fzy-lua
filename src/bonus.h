@@ -10,7 +10,7 @@
 #ifndef BONUS_H
 #define BONUS_H
 
-#include "fzy_native.h"
+#include "match.h"
 
 
 #define SCORE_GAP_LEADING -0.005
@@ -91,7 +91,7 @@
     ['8'] = (v), \
     ['9'] = (v)
 
-const score_t bonus_states[3][256] = {
+static const score_t bonus_states[3][256] = {
     { 0 },
     {
         ['/'] = SCORE_MATCH_SLASH,
@@ -112,7 +112,7 @@ const score_t bonus_states[3][256] = {
     }
 };
 
-const index_t bonus_index[256] = {
+static const index_t bonus_index[256] = {
     /* ['A' ... 'Z'] = 2 */
     ASSIGN_UPPER(2),
 
