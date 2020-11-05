@@ -1,2 +1,0 @@
--std=c99
--I/opt/local/include

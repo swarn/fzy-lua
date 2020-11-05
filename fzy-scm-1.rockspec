@@ -1,8 +1,7 @@
 package = "fzy"
-version = "0.2-1"
+version = "scm-1"
 source = {
   url = "git://github.com/swarn/fzy-lua",
-  tag = "v0.2"
 }
 description = {
   summary = "A fuzzy string-matching algorithm",
@@ -14,7 +13,7 @@ description = {
   license = "MIT"
 }
 dependencies = {
-  "lua >= 5.1, < 5.4"
+  "lua >= 5.1"
 }
 build = {
   type = "builtin",
