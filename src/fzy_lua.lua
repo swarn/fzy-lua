@@ -40,15 +40,13 @@ local function is_upper(c)
   return c:match("%u")
 end
 
-local separator = package.config:sub(1,1)
-
 local function precompute_bonus(haystack)
   local match_bonus = {}
 
-  local last_char = separator
+  local last_char = "/"
   for i = 1, string.len(haystack) do
     local this_char = haystack:sub(i, i)
-    if last_char == separator then
+    if last_char == "/" or last_char == "\\" then
       match_bonus[i] = SCORE_MATCH_SLASH
     elseif last_char == "-" or last_char == "_" or last_char == " " then
       match_bonus[i] = SCORE_MATCH_WORD

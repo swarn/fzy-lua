@@ -95,6 +95,7 @@ static const score_t bonus_states[3][256] = {
     { 0 },
     {
         ['/'] = SCORE_MATCH_SLASH,
+        ['\\'] = SCORE_MATCH_SLASH,
         ['-'] = SCORE_MATCH_WORD,
         ['_'] = SCORE_MATCH_WORD,
         [' '] = SCORE_MATCH_WORD,
@@ -102,6 +103,7 @@ static const score_t bonus_states[3][256] = {
     },
     {
         ['/'] = SCORE_MATCH_SLASH,
+        ['\\'] = SCORE_MATCH_SLASH,
         ['-'] = SCORE_MATCH_WORD,
         ['_'] = SCORE_MATCH_WORD,
         [' '] = SCORE_MATCH_WORD,

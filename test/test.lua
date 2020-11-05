@@ -16,32 +16,34 @@ local fzy = require('fzy')
 if fzy.get_implementation_name() == "native" then
   fzy_lua = require('fzy_lua')
 
+  local imp_err = "Native and lua versions of fzy do not match!"
+
   function score(needle, haystack, case_sensitive)
     local native_result = fzy.score(needle, haystack, case_sensitive)
     local lua_result = fzy_lua.score(needle, haystack, case_sensitive)
-    assert.near(native_result, lua_result, e)
+    assert.near(native_result, lua_result, e, imp_err)
     return native_result
   end
 
   function has_match(needle, haystack, case_sensitive)
     local native_result = fzy.has_match(needle, haystack, case_sensitive)
     local lua_result = fzy_lua.has_match(needle, haystack, case_sensitive)
-    assert.equal(native_result, lua_result)
+    assert.equal(native_result, lua_result, imp_err)
     return native_result
   end
 
   function positions(needle, haystack, case_sensitive)
     local native_result = fzy.positions(needle, haystack, case_sensitive)
     local lua_result = fzy_lua.positions(needle, haystack, case_sensitive)
-    assert.same(native_result, lua_result)
+    assert.same(native_result, lua_result, imp_err)
     return native_result
   end
 
   function score_and_positions(needle, haystack, case_sensitive)
     local ns, np = fzy.score_and_positions(needle, haystack, case_sensitive)
     local ls, lp = fzy_lua.score_and_positions(needle, haystack, case_sensitive)
-    assert.near(ns, ls, e)
-    assert.same(np, lp)
+    assert.near(ns, ls, e, imp_err)
+    assert.same(np, lp, imp_err)
     return ns, np
   end
 else
@@ -100,6 +102,7 @@ describe("matching", function()
   end)
   it("handles special characters", function()
     assert.True(has_match("\\", "\\"))
+    assert.True(has_match("/", "/"))
     assert.True(has_match("[", "["))
     assert.True(has_match("%", "%"))
   end)
@@ -135,6 +138,9 @@ end)
 describe("scoring", function()
   it("prefers beginnings of words", function()
     assert.query("amor").closerTo("app/models/order").thanTo("app/models/zrder")
+    assert.query("amor").closerTo("app models order").thanTo("app models zrder")
+    assert.query("amor").closerTo("appModelsOrder").thanTo("appModelsZrder")
+    assert.query("amor").closerTo("app\\models\\order").thanTo("app\\models\\zrder")
     assert.query("a").closerTo(".a").thanTo("ba")
   end)
   it("prefers consecutive letters", function()
@@ -168,9 +174,11 @@ describe("scoring", function()
     assert.are.same(score("", "a"), SCORE_MIN)
     assert.are.same(score("", "bb"), SCORE_MIN)
   end)
-  it("rewards matching '/' correctly", function()
+  it("rewards matching slashes correctly", function()
     assert.query("a").closerTo("*/a").thanTo("**a")
+    assert.query("a").closerTo("*\\a").thanTo("**a")
     assert.query("a").closerTo("**/a").thanTo("*a")
+    assert.query("a").closerTo("**\\a").thanTo("*a")
     assert.query("aa").closerTo("a/aa").thanTo("a/a")
   end)
   it("rewards matching camelCase correctly", function()
@@ -211,6 +219,8 @@ describe("positioning", function()
   end)
   it("favors smaller groupings of positions", function()
     assert.same({3, 5, 7}, positions("abc", "a/a/b/c/c"))
+    assert.same({3, 5, 7}, positions("abc", "a\\a\\b\\c\\c"))
+    assert.same({4, 6, 8}, positions("abc", "*a*a*b*c*c"))
     assert.same({3, 5}, positions("ab", "caacbbc"))
   end)
   it("handles exact matches", function()
