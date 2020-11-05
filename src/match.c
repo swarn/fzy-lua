@@ -20,18 +20,33 @@
 #include "bonus.h"
 
 
-bool has_match(char const * needle, char const * haystack, bool case_sensitive)
+int has_match(char const * needle, char const * haystack, int case_sensitive)
 {
+    char needle_lower[MATCH_MAX_LEN + 1];
+    char haystack_lower[MATCH_MAX_LEN + 1];
+
+    if (! case_sensitive)
+    {
+        int const n = strlen(needle);
+        int const m = strlen(haystack);
+
+        for (int i = 0; i < n; i++)
+            needle_lower[i] = tolower(needle[i]);
+        for (int i = 0; i < m; i++)
+            haystack_lower[i] = tolower(haystack[i]);
+
+        needle_lower[n] = 0;
+        haystack_lower[m] = 0;
+
+        needle = needle_lower;
+        haystack = haystack_lower;
+    }
+
     while (*needle)
     {
-        char nch = *needle++;
-
-        const char accept[3] = {nch, case_sensitive ? 0 : toupper(nch), 0};
-
-        if (! (haystack = strpbrk(haystack, accept)))
-        {
+        if (! (haystack = strchr(haystack, *needle++)))
             return 0;
-        }
+
         haystack++;
     }
     return 1;
@@ -158,7 +173,7 @@ static inline void match_row(
     }
 }
 
-score_t match(char const * needle, char const * haystack, bool case_sensitive)
+score_t match(char const * needle, char const * haystack, int case_sensitive)
 {
     if (! *needle)
         return SCORE_MIN;
@@ -216,7 +231,7 @@ score_t match_positions(
     const char * needle,
     const char * haystack,
     u_int32_t * positions,
-    bool is_case_sensitive)
+    int is_case_sensitive)
 {
     if (! *needle)
         return SCORE_MIN;

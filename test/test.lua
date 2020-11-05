@@ -1,10 +1,56 @@
-local fzy = require('fzy')
+-- test.lua
+-- A test framework for fzy-lua
+--
+-- Seth Warn, https://github.com/swarn
+-- Partially based on John Hawthorn's fzy testing.
+
+
 local say = require('say')
 
-local score = fzy.score
-local has_match = fzy.has_match
-local positions = fzy.positions
-local score_and_positions = fzy.score_and_positions
+-- tolerance for floating-point equivalence
+local e = 0.000001
+
+-- Be a little tricky here: if both the native and lua implementations are
+-- availble, always run both and check against each other.
+local fzy = require('fzy')
+if fzy.get_implementation_name() == "native" then
+  fzy_lua = require('fzy_lua')
+
+  function score(needle, haystack, case_sensitive)
+    local native_result = fzy.score(needle, haystack, case_sensitive)
+    local lua_result = fzy_lua.score(needle, haystack, case_sensitive)
+    assert.near(native_result, lua_result, e)
+    return native_result
+  end
+
+  function has_match(needle, haystack, case_sensitive)
+    local native_result = fzy.has_match(needle, haystack, case_sensitive)
+    local lua_result = fzy_lua.has_match(needle, haystack, case_sensitive)
+    assert.equal(native_result, lua_result)
+    return native_result
+  end
+
+  function positions(needle, haystack, case_sensitive)
+    local native_result = fzy.positions(needle, haystack, case_sensitive)
+    local lua_result = fzy_lua.positions(needle, haystack, case_sensitive)
+    assert.same(native_result, lua_result)
+    return native_result
+  end
+
+  function score_and_positions(needle, haystack, case_sensitive)
+    local ns, np = fzy.score_and_positions(needle, haystack, case_sensitive)
+    local ls, lp = fzy_lua.score_and_positions(needle, haystack, case_sensitive)
+    assert.near(ns, ls, e)
+    assert.same(np, lp)
+    return ns, np
+  end
+else
+  print("\nNative version not loaded or tested!\n")
+  score = fzy.score
+  has_match = fzy.has_match
+  positions = fzy.positions
+  score_and_positions = fzy.score_and_positions
+end
 
 local SCORE_MIN = fzy.get_score_min()
 local SCORE_MAX = fzy.get_score_max()
@@ -44,9 +90,6 @@ assert:register("assertion", "thanTo", thanTo, "assertion.thanTo.positive",
                 "assertion.thanTo.negative")
 assert:register("modifier", "query", query)
 assert:register("modifier", "closerTo", closerTo)
-
--- tolerance for floating-point equivalence
-local e = 0.000001
 
 describe("matching", function()
   it("exact matches", function()
@@ -153,7 +196,6 @@ describe("scoring", function()
   end)
 end)
 
-
 describe("positioning", function()
   it("favors consecutive positions", function()
     assert.same({1, 5, 6}, positions("amo", "app/models/foo"))
@@ -177,7 +219,6 @@ describe("positioning", function()
   it("ignores empty requests", function()
     assert.same({}, positions("", ""))
     assert.same({}, positions("", "foo"))
-    assert.same({}, positions("foo", ""))
   end)
   it("ignores really long strings", function()
     local longstring = string.rep("a", MATCH_MAX_LENGTH + 1)

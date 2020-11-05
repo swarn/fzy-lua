@@ -11,7 +11,6 @@
 #define FZY_NATIVE_H
 
 #include <math.h>
-#include <stdbool.h>
 #include <stdint.h>
 
 
@@ -26,7 +25,7 @@ typedef uint32_t index_t;
 // Return true if `needle` is a subsequence of `haystack`.
 //
 // Control case sensitivity of matches with `case_sensitive`
-bool has_match(char const * needle, char const * haystack, bool case_sensitive);
+int has_match(char const * needle, char const * haystack, int case_sensitive);
 
 
 // Compute a matching score for two strings.
@@ -43,7 +42,7 @@ bool has_match(char const * needle, char const * haystack, bool case_sensitive);
 // - returns `SCORE_MIN` when `needle` or `haystack` are empty strings.
 //
 // - return `SCORE_MAX` when `strlen(needle) == strlen(haystack)`
-score_t match(char const * needle, char const * haystack, bool case_sensitive);
+score_t match(char const * needle, char const * haystack, int case_sensitive);
 
 
 // Compute a matching score and the indices of matching characters.
@@ -56,7 +55,7 @@ score_t match_positions(
     char const * needle,
     char const * haystack,
     index_t * positions,
-    bool is_case_sensitive);
+    int is_case_sensitive);
 
 
 #endif

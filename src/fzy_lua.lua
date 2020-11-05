@@ -215,4 +215,8 @@ function fzy.get_score_ceiling()
   return MATCH_MAX_LENGTH * SCORE_MATCH_CONSECUTIVE
 end
 
+function fzy.get_implementation_name()
+  return "lua"
+end
+
 return fzy

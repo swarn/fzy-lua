@@ -17,7 +17,7 @@ static int native_has_match(lua_State * L)
     if (lua_gettop(L) > 2 && lua_isboolean(L, 3))
         case_sensitive = lua_toboolean(L, 3);
 
-    lua_pushnumber(L, has_match(needle, haystack, case_sensitive));
+    lua_pushboolean(L, has_match(needle, haystack, case_sensitive));
     return 1;
 }
 
@@ -133,6 +133,8 @@ int luaopen_fzy_native(lua_State * L)
     lua_setfield(L, -2, "get_score_min");
     lua_pushcfunction(L, get_score_max);
     lua_setfield(L, -2, "get_score_max");
+    lua_pushcfunction(L, get_max_length);
+    lua_setfield(L, -2, "get_max_length");
     lua_pushcfunction(L, get_score_floor);
     lua_setfield(L, -2, "get_score_floor");
     lua_pushcfunction(L, get_score_ceiling);
