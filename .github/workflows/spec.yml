@@ -6,12 +6,12 @@ jobs:
   test:
     strategy:
       matrix:
-        luaVersion: ["5.1", "5.2", "5.3", "5.4", "luajit"]
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        luaVersion: ["5.1"]
+        os: [windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - uses: leafo/gh-actions-lua@v7
+      - uses: xpol/setup-lua
         with:
           luaVersion: ${{ matrix.luaVersion }}
       - uses: leafo/gh-actions-luarocks@v3
