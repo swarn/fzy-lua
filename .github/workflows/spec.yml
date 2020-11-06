@@ -14,18 +14,12 @@ jobs:
     - name: Install Python
       uses: actions/setup-python@v2
 
-    - name: Install Lua and Luarocks
+    - name: Build
       run: |
-        set PATH=C:\Python27\Scripts;%PATH%
-        pip install hererocks
-        hererocks lua_install --${{ matrix.lua }} -rlatest
+        python -m pip install hererocks
+        python -m hererocks lua_install --${{ matrix.lua }} -rlatest
         call lua_install\bin\activate
         luarocks install busted
-
-    - name: build
-      run: |
         luarocks make
-
-    - name: test
-      run: |
         busted -o utfTerminal test\test.lua
+
