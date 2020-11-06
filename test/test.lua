@@ -1,3 +1,5 @@
+-- luacheck: std max+busted
+
 -- test.lua
 -- A test framework for fzy-lua
 --
@@ -10,36 +12,41 @@ local say = require('say')
 -- tolerance for floating-point equivalence
 local e = 0.000001
 
+local fzy = require('fzy')
+local score = fzy.score
+local has_match = fzy.has_match
+local positions = fzy.positions
+local score_and_positions = fzy.score_and_positions
+
 -- Be a little tricky here: if both the native and lua implementations are
 -- availble, always run both and check against each other.
-local fzy = require('fzy')
 if fzy.get_implementation_name() == "native" then
-  fzy_lua = require('fzy_lua')
+  local fzy_lua = require('fzy_lua')
 
   local imp_err = "Native and lua versions of fzy do not match!"
 
-  function score(needle, haystack, case_sensitive)
+  score = function(needle, haystack, case_sensitive)
     local native_result = fzy.score(needle, haystack, case_sensitive)
     local lua_result = fzy_lua.score(needle, haystack, case_sensitive)
     assert.near(native_result, lua_result, e, imp_err)
     return native_result
   end
 
-  function has_match(needle, haystack, case_sensitive)
+  has_match = function(needle, haystack, case_sensitive)
     local native_result = fzy.has_match(needle, haystack, case_sensitive)
     local lua_result = fzy_lua.has_match(needle, haystack, case_sensitive)
     assert.equal(native_result, lua_result, imp_err)
     return native_result
   end
 
-  function positions(needle, haystack, case_sensitive)
+  positions = function(needle, haystack, case_sensitive)
     local native_result = fzy.positions(needle, haystack, case_sensitive)
     local lua_result = fzy_lua.positions(needle, haystack, case_sensitive)
     assert.same(native_result, lua_result, imp_err)
     return native_result
   end
 
-  function score_and_positions(needle, haystack, case_sensitive)
+  score_and_positions = function(needle, haystack, case_sensitive)
     local ns, np = fzy.score_and_positions(needle, haystack, case_sensitive)
     local ls, lp = fzy_lua.score_and_positions(needle, haystack, case_sensitive)
     assert.near(ns, ls, e, imp_err)
@@ -48,10 +55,6 @@ if fzy.get_implementation_name() == "native" then
   end
 else
   print("\nNative version not loaded or tested!\n")
-  score = fzy.score
-  has_match = fzy.has_match
-  positions = fzy.positions
-  score_and_positions = fzy.score_and_positions
 end
 
 local SCORE_MIN = fzy.get_score_min()
@@ -243,17 +246,17 @@ end)
 
 describe("score_and_positions", function()
   it("works under usual conditions", function()
-    s, p = score_and_positions("ab", "aaabbb")
+    local s, p = score_and_positions("ab", "aaabbb")
     assert.same(score("ab", "aaabbb"), s)
     assert.same(positions("ab", "aaabbb"), p)
   end)
   it("works for exact matches", function()
-    s, p = score_and_positions("aaa", "aaa")
+    local s, p = score_and_positions("aaa", "aaa")
     assert.same(score("aaa", "aaa"), s)
     assert.same(positions("aaa", "aaa"), p)
   end)
   it("works for empty strings", function()
-    s, p = score_and_positions("", "aaa")
+    local s, p = score_and_positions("", "aaa")
     assert.same(score("", "aaa"), s)
     assert.same(positions("", "aaa"), p)
   end)

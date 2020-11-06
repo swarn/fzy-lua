@@ -189,7 +189,7 @@ end
 
 -- Return only the positions of a match.
 function fzy.positions(needle, haystack, case_sensitive)
-  _, positions = fzy.score_and_positions(needle, haystack, case_sensitive)
+  local _, positions = fzy.score_and_positions(needle, haystack, case_sensitive)
   return positions
 end
 

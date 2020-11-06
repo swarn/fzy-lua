@@ -8,7 +8,7 @@ algorithm.
 From the original `fzy`:
 
 > fzy is faster and shows better results than other fuzzy finders.
-
+>
 > Most other fuzzy matchers sort based on the length of a match. fzy tries to
 > find the result the user intended. It does this by favouring matches on
 > consecutive letters and starts of words. This allows matching using acronyms
@@ -60,7 +60,7 @@ creatively-named `score_and_positions` function to avoid redundant computation.
 
 ## Testing
 
-```
+```sh
 busted test/test.lua
 ```
 
@@ -70,5 +70,5 @@ John Hawthorn wrote the original `fzy`, and this code is *very* similar to
 his `fzy.js` implementation.
 
 [Rom Grk](https://github.com/romgrk) made several useful suggestions, and has a
-Lua [wrapper](https://github.com/romgrk/fzy-lua-native) of a C implementation
-of `fzy` that is _much_ faster than this pure-Lua version.
+a [lua C implemenation](https://github.com/romgrk/fzy-lua-native) using
+the luajit `ffi` library.
