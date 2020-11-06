@@ -25,13 +25,6 @@ if fzy.get_implementation_name() == "native" then
 
   local imp_err = "Native and lua versions of fzy do not match!"
 
-  score = function(needle, haystack, case_sensitive)
-    local native_result = fzy.score(needle, haystack, case_sensitive)
-    local lua_result = fzy_lua.score(needle, haystack, case_sensitive)
-    assert.near(native_result, lua_result, e, imp_err)
-    return native_result
-  end
-
   has_match = function(needle, haystack, case_sensitive)
     local native_result = fzy.has_match(needle, haystack, case_sensitive)
     local lua_result = fzy_lua.has_match(needle, haystack, case_sensitive)
@@ -39,19 +32,19 @@ if fzy.get_implementation_name() == "native" then
     return native_result
   end
 
-  positions = function(needle, haystack, case_sensitive)
-    local native_result = fzy.positions(needle, haystack, case_sensitive)
-    local lua_result = fzy_lua.positions(needle, haystack, case_sensitive)
-    assert.same(native_result, lua_result, imp_err)
+  score = function(needle, haystack, case_sensitive)
+    local native_result = fzy.score(needle, haystack, case_sensitive)
+    local lua_result = fzy_lua.score(needle, haystack, case_sensitive)
+    assert.near(native_result, lua_result, e, imp_err)
     return native_result
   end
 
-  score_and_positions = function(needle, haystack, case_sensitive)
-    local ns, np = fzy.score_and_positions(needle, haystack, case_sensitive)
-    local ls, lp = fzy_lua.score_and_positions(needle, haystack, case_sensitive)
+  positions = function(needle, haystack, case_sensitive)
+    local np, ns = fzy.positions(needle, haystack, case_sensitive)
+    local lp, ls = fzy_lua.positions(needle, haystack, case_sensitive)
     assert.near(ns, ls, e, imp_err)
     assert.same(np, lp, imp_err)
-    return ns, np
+    return np, ns
   end
 else
   print("\nNative version not loaded or tested!\n")
@@ -242,22 +235,12 @@ describe("positioning", function()
   it("is case-sensitive when requested", function()
     assert.same({2, 5}, positions("AB", "aAabBb", true))
   end)
-end)
-
-describe("score_and_positions", function()
-  it("works under usual conditions", function()
-    local s, p = score_and_positions("ab", "aaabbb")
+  it("returns the same score as `score()`", function()
+    local _, s = positions("ab", "aaabbb")
     assert.same(score("ab", "aaabbb"), s)
-    assert.same(positions("ab", "aaabbb"), p)
-  end)
-  it("works for exact matches", function()
-    local s, p = score_and_positions("aaa", "aaa")
+    _, s = positions("aaa", "aaa")
     assert.same(score("aaa", "aaa"), s)
-    assert.same(positions("aaa", "aaa"), p)
-  end)
-  it("works for empty strings", function()
-    local s, p = score_and_positions("", "aaa")
+    _, s = positions("", "aaa")
     assert.same(score("", "aaa"), s)
-    assert.same(positions("", "aaa"), p)
   end)
 end)

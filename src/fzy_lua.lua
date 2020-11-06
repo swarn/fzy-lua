@@ -147,20 +147,20 @@ end
 
 -- Find the locations where fzy matched a string.
 --
--- Returns {score, indices}, where indices is an array showing where each
+-- Returns (indices, score), where indices is an array showing where each
 -- character of the needle matches the haystack in the best match.
-function fzy.score_and_positions(needle, haystack, case_sensitive)
+function fzy.positions(needle, haystack, case_sensitive)
   local n = string.len(needle)
   local m = string.len(haystack)
 
   if n == 0 or m == 0 or m > MATCH_MAX_LENGTH or n > MATCH_MAX_LENGTH then
-    return SCORE_MIN, {}
+    return {}, SCORE_MIN
   elseif n == m then
     local consecutive = {}
     for i = 1, n do
       consecutive[i] = i
     end
-    return SCORE_MAX, consecutive
+    return consecutive, SCORE_MAX
   end
 
   local D = {}
@@ -184,13 +184,7 @@ function fzy.score_and_positions(needle, haystack, case_sensitive)
     end
   end
 
-  return M[n][m], positions
-end
-
--- Return only the positions of a match.
-function fzy.positions(needle, haystack, case_sensitive)
-  local _, positions = fzy.score_and_positions(needle, haystack, case_sensitive)
-  return positions
+  return positions, M[n][m]
 end
 
 function fzy.get_score_min()
