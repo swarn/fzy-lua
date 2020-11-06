@@ -7,7 +7,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        lua: ["lua 5.1"]
+        lua: ["lua 5.1", "lua 5.2", "lua 5.3", "lua 5.4", "luajit 2.1"]
     steps:
     - uses: actions/checkout@v2
 
