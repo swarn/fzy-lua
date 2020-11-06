@@ -22,6 +22,7 @@ jobs:
         luarocks install busted
 
     - name: Build
+      run: |
         lua_install\bin\activate.ps1
         luarocks make
 
