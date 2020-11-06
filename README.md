@@ -1,7 +1,10 @@
 # fzy-lua
 
-A lua port of [fzy](https://github.com/jhawthorn/fzy)'s fuzzy matching
-algorithm.
+[![Actions Status](https://github.com/swarn/fzy-lua/workflows/build/badge.svg)](https://github.com/swarn/fzy-lua/actions)
+
+A Lua port of [fzy](https://github.com/jhawthorn/fzy)'s fuzzy string matching
+algorithm. This includes both a pure Lua implementation and a compiled C
+implementation with a Lua wrapper.
 
 ## Why
 
@@ -19,6 +22,8 @@ From the original `fzy`:
 ``` sh
 luarocks install fzy
 ```
+
+Or, just download a copy of `fzy_lua.lua` and drop it in your project.
 
 ## Usage
 
@@ -57,6 +62,11 @@ using the `has_match` function.
 
 If you want the results of both `score` and `positions`, call the
 creatively-named `score_and_positions` function to avoid redundant computation.
+
+There are two libraries, `fzy_lua` with the Lua implementation and `fzy_native`
+with the C implementation. When you use `require'fzy'`, it attempts to load the
+native module; if that fails, it automatically substitutes the Lua
+implementation.
 
 ## Testing
 
