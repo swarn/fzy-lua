@@ -18,7 +18,7 @@ jobs:
       run: |
         python -m pip install hererocks
         python -m hererocks lua_install --${{ matrix.lua }} -rlatest
-        call lua_install\bin\activate
+        lua_install\bin\activate.ps1
         luarocks install busted
         luarocks make
         busted -o utfTerminal test\test.lua
