@@ -18,6 +18,9 @@ jobs:
       uses: actions/setup-python@v2
 
     - name: Setup Lua
+      env:
+        # luajit fails to build on macos without this
+        MACOSX_DEPLOYMENT_TARGET: "10.15"
       run: |
         python -m pip install hererocks
         python -m hererocks lua_install --${{ matrix.lua }} -rlatest
