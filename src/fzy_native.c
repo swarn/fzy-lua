@@ -14,7 +14,7 @@ static int native_has_match(lua_State * L)
     char const * needle = luaL_checkstring(L, 1);
     char const * haystack = luaL_checkstring(L, 2);
     bool case_sensitive = false;
-    if (lua_gettop(L) > 2 && lua_isboolean(L, 3))
+    if (lua_gettop(L) > 2)
         case_sensitive = lua_toboolean(L, 3);
 
     lua_pushboolean(L, has_match(needle, haystack, case_sensitive));
@@ -26,11 +26,10 @@ static int score(lua_State * L)
     char const * needle = luaL_checkstring(L, 1);
     char const * haystack = luaL_checkstring(L, 2);
     bool case_sensitive = false;
-    if (lua_gettop(L) > 2 && lua_isboolean(L, 3))
+    if (lua_gettop(L) > 2)
         case_sensitive = lua_toboolean(L, 3);
 
     lua_pushnumber(L, match(needle, haystack, case_sensitive));
-
     return 1;
 }
 
@@ -39,7 +38,7 @@ static int positions(lua_State * L)
     char const * needle = luaL_checkstring(L, 1);
     char const * haystack = luaL_checkstring(L, 2);
     bool case_sensitive = false;
-    if (lua_gettop(L) > 2 && lua_isboolean(L, 3))
+    if (lua_gettop(L) > 2)
         case_sensitive = lua_toboolean(L, 3);
 
     index_t result[MATCH_MAX_LEN];
@@ -55,7 +54,6 @@ static int positions(lua_State * L)
     }
 
     lua_pushnumber(L, score);
-
     return 2;
 }
 
