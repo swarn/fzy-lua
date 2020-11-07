@@ -3,11 +3,44 @@ name: build
 on: [push]
 
 jobs:
+  unix:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+        lua: ["lua 5.1", "lua 5.2", "lua 5.3", "lua 5.4", "luajit 2.1"]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Python
+      uses: actions/setup-python@v2
+
+    - name: Setup Lua
+      run: |
+        python -m pip install hererocks
+        python -m hererocks lua_install --${{ matrix.lua }} -rlatest
+        source lua_install/bin/activate
+        luarocks install busted
+
+    - name: Build
+      run: |
+        source lua_install/bin/activate
+        luarocks make
+
+    - name: Test
+      run: |
+        source lua_install/bin/activate
+        busted test/test.lua
+
   windows:
     runs-on: windows-latest
+
     strategy:
       matrix:
         lua: ["lua 5.1", "lua 5.2", "lua 5.3", "lua 5.4", "luajit 2.1"]
+
     steps:
     - uses: actions/checkout@v2
 
