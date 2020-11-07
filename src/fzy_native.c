@@ -1,3 +1,5 @@
+// The lua wrapper to the native C implementation of fzy
+
 #include <stdbool.h>
 #include <string.h>
 

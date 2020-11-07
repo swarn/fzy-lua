@@ -1,3 +1,5 @@
+-- The lua implementation of the fzy string matching algorithm
+
 local SCORE_GAP_LEADING = -0.005
 local SCORE_GAP_TRAILING = -0.005
 local SCORE_GAP_INNER = -0.01
@@ -12,7 +14,17 @@ local MATCH_MAX_LENGTH = 1024
 
 local fzy = {}
 
--- Return `true` if `needle` is a subsequence of `haystack`.
+-- Check if `needle` is a subsequence of the `haystack`.
+--
+-- Usually called before `score` or `positions`.
+--
+-- Args:
+--   needle (string)
+--   haystack (string)
+--   case_sensitive (bool, optional): defaults to false
+--
+-- Returns:
+--   bool
 function fzy.has_match(needle, haystack, case_sensitive)
   if not case_sensitive then
     needle = string.lower(needle)
@@ -113,22 +125,17 @@ local function compute(needle, haystack, D, M, case_sensitive)
   end
 end
 
--- Compute a matching score for two strings.
+-- Compute a matching score.
 --
--- Where `needle` is a subsequence of `haystack`, this returns a score
--- measuring the quality of their match. Better matches get higher scores.
+-- Args:
+--   needle (string): must be a subequence of `haystack`, or the result is
+--     undefined.
+--   haystack (string)
+--   case_sensitive (bool, optional): defaults to false
 --
--- `needle` must be a subsequence of `haystack`, the result is undefined
--- otherwise. Call `has_match()` before calling `score`.
---
--- returns `get_score_min()` where a or b are longer than `get_max_length()`
---
--- returns `get_score_min()` when a or b are empty strings.
---
--- returns `get_score_max()` when a and b are the same string.
---
--- When the return value is not covered by the above rules, it is a number
--- in the range (`get_score_floor()`, `get_score_ceiling()`)
+-- Returns:
+--   number: higher scores indicate better matches. See also `get_score_min`
+--     and `get_score_max`.
 function fzy.score(needle, haystack, case_sensitive)
   local n = string.len(needle)
   local m = string.len(haystack)
@@ -145,10 +152,21 @@ function fzy.score(needle, haystack, case_sensitive)
   end
 end
 
--- Find the locations where fzy matched a string.
+-- Compute the locations where fzy matches a string.
 --
--- Returns (indices, score), where indices is an array showing where each
--- character of the needle matches the haystack in the best match.
+-- Determine where each character of the `needle` is matched to the `haystack`
+-- in the optimal match.
+--
+-- Args:
+--   needle (string): must be a subequence of `haystack`, or the result is
+--     undefined.
+--   haystack (string)
+--   case_sensitive (bool, optional): defaults to false
+--
+-- Returns:
+--   {int,...}: indices, where `indices[n]` is the location of the `n`th
+--     character of `needle` in `haystack`.
+--   number: the same matching score returned by `score`
 function fzy.positions(needle, haystack, case_sensitive)
   local n = string.len(needle)
   local m = string.len(haystack)
@@ -187,26 +205,44 @@ function fzy.positions(needle, haystack, case_sensitive)
   return positions, M[n][m]
 end
 
+-- The lowest value returned by `score`.
+--
+-- In two special cases:
+--  - an empty `needle`, or
+--  - a `needle` or `haystack` larger than than `get_max_length`,
+-- the `score` function will return this exact value, which can be used as a
+-- sentinel. This is the lowest possible score.
 function fzy.get_score_min()
   return SCORE_MIN
 end
 
+-- The score returned for exact matches. This is the highest possible score.
 function fzy.get_score_max()
   return SCORE_MAX
 end
 
+-- The maximum size for which `fzy` will evaluate scores.
 function fzy.get_max_length()
   return MATCH_MAX_LENGTH
 end
 
+-- The minimum score returned for normal matches.
+--
+-- For matches that don't return `get_score_min`, their score will be greater
+-- than than this value.
 function fzy.get_score_floor()
   return MATCH_MAX_LENGTH * SCORE_GAP_INNER
 end
 
+-- The maximum score for non-exact matches.
+--
+-- For matches that don't return `get_score_max`, their score will be less than
+-- this value.
 function fzy.get_score_ceiling()
   return MATCH_MAX_LENGTH * SCORE_MATCH_CONSECUTIVE
 end
 
+-- The name of the currently-running implmenetation, "lua" or "native".
 function fzy.get_implementation_name()
   return "lua"
 end
