@@ -230,7 +230,7 @@ score_t match(char const * needle, char const * haystack, int case_sensitive)
 score_t match_positions(
     const char * needle,
     const char * haystack,
-    u_int32_t * positions,
+    index_t * positions,
     int is_case_sensitive)
 {
     if (! *needle)
