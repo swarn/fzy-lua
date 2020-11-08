@@ -56,12 +56,13 @@ fzy.positions("ABC", "abcA*B*C", true) -- {4, 6, 8}
 --                       ^ ^ ^
 ```
 
-NB: `score` and `positions` must be called with matching needle and haystack,
-doing otherwise is undefined. The caller needs to check that there is a match
-using the `has_match` function.
+NB: `score` and `positions` must be called with a `needle` that is a
+subsequence of the `haystack`, which you can check with the `has_match`
+function.
 
-If you want the results of both `score` and `positions`, call the
-creatively-named `score_and_positions` function to avoid redundant computation.
+The `positions` function returns two values, the array shown above and the same
+score that `score` returns. If you need both values, it's more efficient to use
+`positions`.
 
 There are two libraries, `fzy_lua` with the Lua implementation and `fzy_native`
 with the C implementation. When you use `require'fzy'`, it attempts to load the
