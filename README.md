@@ -45,29 +45,11 @@ fzy.positions("amuser", "app/models/customer.rb") -- { 1, 5, 13, 14, 18, 19 }
 --                       ^   ^       ^^   ^^
 ```
 
-`fzy` is case-insensitive by default, which can be disabled:
-
-``` lua
-fzy.match("acE", "abcde")              -- true
-fzy.match("acE", "abcde", true)        -- false
-fzy.positions("ABC", "abcA*B*C")       -- {1, 2, 3}
---                    ^^^
-fzy.positions("ABC", "abcA*B*C", true) -- {4, 6, 8}
---                       ^ ^ ^
-```
-
-NB: `score` and `positions` must be called with a `needle` that is a
+NB: `score` and `positions` should only be called with a `needle` that is a
 subsequence of the `haystack`, which you can check with the `has_match`
 function.
 
-The `positions` function returns two values, the array shown above and the same
-score that `score` returns. If you need both values, it's more efficient to use
-`positions`.
-
-There are two libraries, `fzy_lua` with the Lua implementation and `fzy_native`
-with the C implementation. When you use `require'fzy'`, it attempts to load the
-native module; if that fails, it automatically substitutes the Lua
-implementation.
+See [the docs](docs/fzy.md) for more information.
 
 ## Testing
 
@@ -77,9 +59,10 @@ busted test/test.lua
 
 ## Thanks
 
-John Hawthorn wrote the original `fzy`, and this code is *very* similar to
-his `fzy.js` implementation.
+John Hawthorn wrote the original `fzy`. The native implementation here is
+basically his code with a few tweaks, and the lua implementation is derived
+from his `fzy.js` implementation.
 
 [Rom Grk](https://github.com/romgrk) made several useful suggestions, and has a
-a [lua C implemenation](https://github.com/romgrk/fzy-lua-native) using
+[lua C implemenation](https://github.com/romgrk/fzy-lua-native) using
 the luajit `ffi` library.
