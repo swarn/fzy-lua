@@ -16,7 +16,7 @@ local fzy = require('fzy')
 local score = fzy.score
 local has_match = fzy.has_match
 local positions = fzy.positions
-local score_and_positions = fzy.score_and_positions
+local filter = fzy.filter
 
 -- Be a little tricky here: if both the native and lua implementations are
 -- availble, always run both and check against each other.
@@ -45,6 +45,13 @@ if fzy.get_implementation_name() == "native" then
     assert.near(ns, ls, e, imp_err)
     assert.same(np, lp, imp_err)
     return np, ns
+  end
+
+  filter = function(needle, haystack, case_sensitive)
+    local nr = fzy.filter(needle, haystack, case_sensitive)
+    local lr = fzy_lua.filter(needle, haystack, case_sensitive)
+    assert.same(nr, lr, imp_err)
+    return nr
   end
 else
   print("\nNative version not loaded or tested!\n")
@@ -242,5 +249,33 @@ describe("positioning", function()
     assert.same(score("aaa", "aaa"), s)
     _, s = positions("", "aaa")
     assert.same(score("", "aaa"), s)
+  end)
+end)
+
+describe("filtering", function()
+  it("repeats application of has_match and positions", function()
+
+    -- compare the result of `filter` with repeated calls to `positions`
+    local function check_filter(needle, haystacks, case)
+      local result = filter(needle, haystacks, case)
+      local r = 0
+      for i, line in ipairs(haystacks) do
+        local match = has_match(needle, line, case)
+        if match then
+          r = r + 1
+          assert.equals(i, result[r][1])
+          local p, s = positions(needle, line, case)
+          assert.same(p, result[r][2])
+          assert.near(s, result[r][3], e)
+        end
+      end
+      assert.equals(#result, r)
+    end
+
+    check_filter("a", {"a", "A", "aa", "b", ""})
+    check_filter("a", {"a", "A", "aa", "b", ""}, true)
+    check_filter("", {"a", "A", "aa", "b", ""})
+    check_filter("a", {"b"})
+    check_filter("a", {})
   end)
 end)

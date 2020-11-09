@@ -140,7 +140,7 @@ function fzy.score(needle, haystack, case_sensitive)
   local n = string.len(needle)
   local m = string.len(haystack)
 
-  if n == 0 or m == 0 or m > MATCH_MAX_LENGTH or n > MATCH_MAX_LENGTH then
+  if n == 0 or m == 0 or m > MATCH_MAX_LENGTH or n > m then
     return SCORE_MIN
   elseif n == m then
     return SCORE_MAX
@@ -171,7 +171,7 @@ function fzy.positions(needle, haystack, case_sensitive)
   local n = string.len(needle)
   local m = string.len(haystack)
 
-  if n == 0 or m == 0 or m > MATCH_MAX_LENGTH or n > MATCH_MAX_LENGTH then
+  if n == 0 or m == 0 or m > MATCH_MAX_LENGTH or n > m then
     return {}, SCORE_MIN
   elseif n == m then
     local consecutive = {}
@@ -203,6 +203,31 @@ function fzy.positions(needle, haystack, case_sensitive)
   end
 
   return positions, M[n][m]
+end
+
+-- Apply `has_match` and `positions` to an array of haystacks.
+--
+-- Args:
+--   needle (string)
+--   haystack ({string, ...})
+--   case_sensitive (bool, optional): defaults to false
+--
+-- Returns:
+--   {{idx, positions, score}, ...}: an array with one entry per matching line
+--     in `haystacks`, each entry giving the index of the line in `haystacks`
+--     as well as the equivalent to the return value of `positions` for that
+--     line.
+function fzy.filter(needle, haystacks, case_sensitive)
+  local result = {}
+
+  for i, line in ipairs(haystacks) do
+    if fzy.has_match(needle, line, case_sensitive) then
+      local p, s = fzy.positions(needle, line, case_sensitive)
+      table.insert(result, {i, p, s})
+    end
+  end
+
+  return result
 end
 
 -- The lowest value returned by `score`.
