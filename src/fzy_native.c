@@ -11,6 +11,19 @@
 #include "bonus.h"
 #include "match.h"
 
+// 5.1 had lua_objlen(). Luajit is based on 5.1, and is used by neovim.
+// 5.2 replaced lua_objlen() with lua_rawlen(). 5.4 is the current version.
+//
+// The two functions are so close that the Lua headers for later versions
+// aliased lua_objlen to lua_rawlen if you defined LUA_COMPAT_5_1, so that old
+// code would still work. But my CI tests showed this wasn't always true, and
+// lua_objlen was still undefined on some platforms.
+//
+// So, this is my workaround: for Lua 5.1 and luajit, alias the new function
+// to the old one.
+#if LUA_VERSION_NUM == 501
+    #define lua_rawlen(L, i) lua_objlen(L, i)
+#endif
 
 static int native_has_match(lua_State * L)
 {

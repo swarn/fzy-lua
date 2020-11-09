@@ -20,7 +20,10 @@ build = {
   modules = {
     fzy = "src/fzy.lua",
     fzy_lua = "src/fzy_lua.lua",
-    fzy_native = {"src/fzy_native.c", "src/match.c" }
+    fzy_native = {
+      sources = { "src/fzy_native.c", "src/match.c" },
+      defines = { "LUA_COMPAT_5_1" }
+    }
   },
 
   copy_directories = { "test" }
