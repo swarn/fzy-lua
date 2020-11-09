@@ -42,7 +42,8 @@ false
 ### `fzy.score(needle, haystack[, case_sensitive])`
 
 **Parameters**
-* **needle** (*string*)
+* **needle** (*string*): must be a subequence of `haystack`, or the result is
+  undefined.
 * **haystack** (*string*)
 * **case_sensitive** (*bool, optional*) – defaults to false
 
@@ -62,7 +63,8 @@ the optimal match.
 ```
 
 **Parameters**
-* **needle** (*string*)
+* **needle** (*string*): must be a subequence of `haystack`, or the result is
+  undefined.
 * **haystack** (*string*)
 * **case_sensitive** (*bool, optional*) – defaults to false
 
@@ -85,7 +87,8 @@ iterating over the `haystacks` and calling those functions for each string.
 ```
 
 **Parameters**
-* **needle** (*string*)
+* **needle** (*string*): unlike the other functions, the `needle` need not be
+  a subsequence of any of the strings in the `haystack`.
 * **haystack** (*{string, ...}*)
 * **case_sensitive** (*bool, optional*) – defaults to false
 
