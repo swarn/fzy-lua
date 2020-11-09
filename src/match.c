@@ -1,5 +1,5 @@
 /* match.c
- * c implementation of fzy matching
+ * C implementation of fzy matching
  *
  * original code by John Hawthorn, https://github.com/jhawthorn/fzy
  * modifications by
@@ -27,13 +27,13 @@ int has_match(char const * needle, char const * haystack, int case_sensitive)
 
     if (! case_sensitive)
     {
-        int const n = strlen(needle);
-        int const m = strlen(haystack);
+        size_t const n = strlen(needle);
+        size_t const m = strlen(haystack);
 
         for (int i = 0; i < n; i++)
-            needle_lower[i] = tolower(needle[i]);
+            needle_lower[i] = (char)tolower(needle[i]);
         for (int i = 0; i < m; i++)
-            haystack_lower[i] = tolower(haystack[i]);
+            haystack_lower[i] = (char)tolower(haystack[i]);
 
         needle_lower[n] = 0;
         haystack_lower[m] = 0;
@@ -57,8 +57,8 @@ int has_match(char const * needle, char const * haystack, int case_sensitive)
     do                                                                                 \
     {                                                                                  \
         T SWAP = x;                                                                    \
-        x = y;                                                                         \
-        y = SWAP;                                                                      \
+        (x) = y;                                                                       \
+        (y) = SWAP;                                                                    \
     } while (0)
 
 #define max(a, b) (((a) > (b)) ? (a) : (b))
@@ -97,8 +97,8 @@ static void setup_match_struct(
     char const * haystack,
     int is_case_sensitive)
 {
-    match->needle_len = strlen(needle);
-    match->haystack_len = strlen(haystack);
+    match->needle_len = (int)strlen(needle);
+    match->haystack_len = (int)strlen(haystack);
 
     if (match->haystack_len > MATCH_MAX_LEN || match->needle_len > match->haystack_len)
     {
@@ -113,10 +113,10 @@ static void setup_match_struct(
     else
     {
         for (int i = 0; i < match->needle_len; i++)
-            match->lower_needle[i] = tolower(needle[i]);
+            match->lower_needle[i] = (char)tolower(needle[i]);
 
         for (int i = 0; i < match->haystack_len; i++)
-            match->lower_haystack[i] = tolower(haystack[i]);
+            match->lower_haystack[i] = (char)tolower(haystack[i]);
 
         match->needle = match->lower_needle;
         match->haystack = match->lower_haystack;
@@ -133,8 +133,8 @@ static inline void match_row(
     score_t const * last_D,
     score_t const * last_M)
 {
-    int n = match->needle_len;
-    int m = match->haystack_len;
+    unsigned n = match->needle_len;
+    unsigned m = match->haystack_len;
     int i = row;
 
     char const * needle = match->needle;
@@ -181,40 +181,29 @@ score_t match(char const * needle, char const * haystack, int case_sensitive)
     struct match_struct match;
     setup_match_struct(&match, needle, haystack, case_sensitive);
 
-    int n = match.needle_len;
-    int m = match.haystack_len;
+    unsigned n = match.needle_len;
+    unsigned m = match.haystack_len;
 
+    // Unreasonably large candidate; return no score. If it is a valid match,
+    // it will still be returned, it will just be ranked below any reasonably
+    // sized candidates.
     if (m > MATCH_MAX_LEN || n > m)
-    {
-        /*
-         * Unreasonably large candidate: return no score
-         * If it is a valid match it will still be returned, it will
-         * just be ranked below any reasonably sized candidates
-         */
         return SCORE_MIN;
-    }
-    else if (n == m)
-    {
-        /* Since this method can only be called with a haystack which
-         * matches needle. If the lengths of the strings are equal the
-         * strings themselves must also be equal (ignoring case).
-         */
+
+    // If `needle` is a subsequence of `haystack` and the same length, then
+    // they are the same string.
+    if (n == m)
         return SCORE_MAX;
-    }
 
-    /*
-     * D[][] Stores the best score for this position ending with a match.
-     * M[][] Stores the best possible score at this position.
-     */
-    score_t D[2][MATCH_MAX_LEN], M[2][MATCH_MAX_LEN];
+    // D[][] Stores the best score for this position ending with a match.
+    // M[][] Stores the best possible score at this position.
+    score_t D[2][MATCH_MAX_LEN];
+    score_t M[2][MATCH_MAX_LEN];
 
-    score_t *last_D, *last_M;
-    score_t *curr_D, *curr_M;
-
-    last_D = D[0];
-    last_M = M[0];
-    curr_D = D[1];
-    curr_M = M[1];
+    score_t * last_D = D[0];
+    score_t * last_M = M[0];
+    score_t * curr_D = D[1];
+    score_t * curr_M = M[1];
 
     for (int i = 0; i < n; i++)
     {
@@ -242,34 +231,33 @@ score_t match_positions(
     int n = match.needle_len;
     int m = match.haystack_len;
 
+    // Unreasonably large candidate; return no score. If it is a valid match,
+    // it will still be returned, it will just be ranked below any reasonably
+    // sized candidates
     if (m > MATCH_MAX_LEN || n > m)
-    {
-        // Unreasonably large candidate: return no score
-        // If it is a valid match it will still be returned, it will
-        // just be ranked below any reasonably sized candidates
         return SCORE_MIN;
-    }
-    else if (n == m)
+
+    // If `needle` is a subsequence of `haystack` and the same length, then
+    // they are the same string.
+    if (n == m)
     {
-        // Since this method can only be called with a haystack which
-        // matches needle. If the lengths of the strings are equal the
-        // strings themselves must also be equal (ignoring case).
         if (positions)
             for (int i = 0; i < n; i++)
                 positions[i] = i;
+
         return SCORE_MAX;
     }
 
-    /*
-     * D[][] Stores the best score for this position ending with a match.
-     * M[][] Stores the best possible score at this position.
-     */
-    score_t(*D)[MATCH_MAX_LEN], (*M)[MATCH_MAX_LEN];
-    M = malloc(sizeof(score_t) * MATCH_MAX_LEN * n);
-    D = malloc(sizeof(score_t) * MATCH_MAX_LEN * n);
+    // D[][] Stores the best score for this position ending with a match.
+    // M[][] Stores the best possible score at this position.
+    typedef score_t (* score_grid_t)[MATCH_MAX_LEN];
+    score_grid_t D = malloc(sizeof(score_t) * MATCH_MAX_LEN * n);
+    score_grid_t M = malloc(sizeof(score_t) * MATCH_MAX_LEN * n);
 
-    score_t *last_D, *last_M;
-    score_t *curr_D, *curr_M;
+    score_t * last_D = NULL;
+    score_t * last_M = NULL;
+    score_t * curr_D = NULL;
+    score_t * curr_M = NULL;
 
     for (int i = 0; i < n; i++)
     {
@@ -290,14 +278,11 @@ score_t match_positions(
         {
             for (; j >= 0; j--)
             {
-                /*
-                 * There may be multiple paths which result in
-                 * the optimal weight.
-                 *
-                 * For simplicity, we will pick the first one
-                 * we encounter, the latest in the candidate
-                 * string.
-                 */
+                // There may be multiple paths which result in the optimal
+                // weight.
+                //
+                // For simplicity, we will pick the first one we encounter,
+                // the latest in the candidate string.
                 if (D[i][j] != SCORE_MIN && (match_required || D[i][j] == M[i][j]))
                 {
                     // If this score was determined using SCORE_MATCH_CONSECUTIVE,

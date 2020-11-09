@@ -1,0 +1,26 @@
+---
+Checks: >
+    *,
+    -abseil-*,
+    -cppcoreguidelines-avoid-magic-numbers,
+    -cppcoreguidelines-pro-bounds-constant-array-index,
+    -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+    -fuchsia-*,
+    -google-*,
+    -hicpp-braces-around-statements,
+    -llvm-*,
+    -llvmlibc-*,
+    -modernize-use-trailing-return-type,
+    -modernize-use-nodiscard,
+    -modernize-avoid-c-arrays,
+    -readability-magic-numbers,
+    -readability-braces-around-statements,
+    -zircon-*
+
+HeaderFilterRegex: '*'
+
+FormatStyle:     none
+
+CheckOptions:
+    - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
+      value: 1
