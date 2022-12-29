@@ -76,6 +76,14 @@ local function precompute_bonus(haystack)
   return match_bonus
 end
 
+local function is_perfect_match(needle, haystack, case_sensitive)
+	if case_sensitive then
+		return needle == haystack
+	else
+		return string.lower(needle) == string.lower(haystack)
+	end
+end
+
 local function compute(needle, haystack, D, M, case_sensitive)
   -- Note that the match bonuses must be computed before the arguments are
   -- converted to lowercase, since there are bonuses for camelCase.
@@ -142,7 +150,7 @@ function fzy.score(needle, haystack, case_sensitive)
 
   if n == 0 or m == 0 or m > MATCH_MAX_LENGTH or n > m then
     return SCORE_MIN
-  elseif needle == haystack then
+  elseif is_perfect_match(needle, haystack, case_sensitive) then
     return SCORE_MAX
   else
     local D = {}
@@ -173,7 +181,7 @@ function fzy.positions(needle, haystack, case_sensitive)
 
   if n == 0 or m == 0 or m > MATCH_MAX_LENGTH or n > m then
     return {}, SCORE_MIN
-  elseif needle == haystack then
+  elseif is_perfect_match(needle, haystack, case_sensitive) then
     local consecutive = {}
     for i = 1, n do
       consecutive[i] = i
