@@ -77,11 +77,11 @@ local function precompute_bonus(haystack)
 end
 
 local function is_perfect_match(needle, haystack, case_sensitive)
-	if case_sensitive then
-		return needle == haystack
-	else
-		return string.lower(needle) == string.lower(haystack)
-	end
+  if case_sensitive then
+    return needle == haystack
+  else
+    return string.lower(needle) == string.lower(haystack)
+  end
 end
 
 local function compute(needle, haystack, D, M, case_sensitive)
