@@ -6,7 +6,8 @@ A Lua port of [fzy](https://github.com/jhawthorn/fzy)'s fuzzy string matching
 algorithm. This includes both a pure Lua implementation and a compiled C
 implementation with a Lua wrapper.
 
-## Why
+
+## What does it do?
 
 From the original `fzy`:
 
@@ -17,6 +18,46 @@ From the original `fzy`:
 > consecutive letters and starts of words. This allows matching using acronyms
 > or different parts of the path.
 
+Let's give it a try:
+
+``` lua
+local fzy = require('fzy')
+local haystacks = {'cab', 'ant/bat/cat', 'ant/bat/ace'}
+local needle = 'abc'
+local result = fzy.filter(needle, haystacks)
+```
+
+Here is what `result` looks like:
+``` lua
+{
+  {2, {1, 5,  9}, 2.63},
+  {3, {1, 5, 10}, 1.725}
+}
+```
+Which tells us:
+
+- We get a result from `filter` for each match. The string at index 1, `cab`,
+  did not match the query, because `abc` is not a subsequence of `cab`.
+
+- The string at index 2 matched with a score of 2.63. It matched characters at
+  the following positions:
+
+      ant/bat/cat
+      ^   ^   ^
+      1   5   9
+
+- The string at index 3 matched with a score of 1.725. It matched characters at
+  the following positions:
+
+      ant/bat/ace
+      ^   ^    ^
+      1   5    10
+
+  This match has a lower score than the previous string because `fzy` tries to
+  find what you intended, and one way it does that is by favoring matches at
+  the beginning of words.
+
+
 ## Install
 
 ``` sh
@@ -25,37 +66,18 @@ luarocks install fzy
 
 Or, just download a copy of `fzy_lua.lua` and drop it in your project.
 
+
 ## Usage
 
-`score(needle, haystack)`
+See [the docs](docs/fzy.md).
 
-``` lua
-local fzy = require('fzy')
-
-fzy.score("amuser", "app/models/user.rb")     -- 5.595
-fzy.score("amuser", "app/models/customer.rb") -- 3.655
-```
-
-`positions(needle, haystack)`
-
-``` lua
-fzy.positions("amuser", "app/models/user.rb")     -- { 1, 5, 12, 13, 14, 15 }
---                       ^   ^      ^^^^
-fzy.positions("amuser", "app/models/customer.rb") -- { 1, 5, 13, 14, 18, 19 }
---                       ^   ^       ^^   ^^
-```
-
-NB: `score` and `positions` should only be called with a `needle` that is a
-subsequence of the `haystack`, which you can check with the `has_match`
-function.
-
-See [the docs](docs/fzy.md) for more information.
 
 ## Testing
 
 ```sh
 busted test/test.lua
 ```
+
 
 ## Thanks
 
