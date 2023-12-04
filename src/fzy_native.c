@@ -22,7 +22,7 @@
 // So, this is my workaround: for Lua 5.1 and luajit, alias the new function
 // to the old one.
 #if LUA_VERSION_NUM == 501
-    #define lua_rawlen(L, i) lua_objlen(L, i)
+#define lua_rawlen(L, i) lua_objlen(L, i)
 #endif
 
 static int native_has_match(lua_State * L)

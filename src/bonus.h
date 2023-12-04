@@ -22,7 +22,7 @@
 #define SCORE_MATCH_CAPITAL 0.7
 #define SCORE_MATCH_DOT 0.6
 
-
+// clang-format off
 #define ASSIGN_LOWER(v) \
     ['a'] = (v), \
     ['b'] = (v), \
@@ -125,6 +125,9 @@ static const index_t bonus_index[256] = {
     ASSIGN_DIGIT(1)
 };
 
-#define COMPUTE_BONUS(last_ch, ch) (bonus_states[bonus_index[(unsigned char)(ch)]][(unsigned char)(last_ch)])
+// clang-format on
+
+#define COMPUTE_BONUS(last_ch, ch)                                                     \
+    (bonus_states[bonus_index[(unsigned char)(ch)]][(unsigned char)(last_ch)])
 
 #endif

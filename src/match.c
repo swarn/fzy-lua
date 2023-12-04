@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "bonus.h"
 
 
@@ -248,7 +249,7 @@ score_t match_positions(
 
     // D[][] Stores the best score for this position ending with a match.
     // M[][] Stores the best possible score at this position.
-    typedef score_t (* score_grid_t)[MATCH_MAX_LEN];
+    typedef score_t(*score_grid_t)[MATCH_MAX_LEN];
     score_grid_t D = malloc(sizeof(score_t) * MATCH_MAX_LEN * n);
     score_grid_t M = malloc(sizeof(score_t) * MATCH_MAX_LEN * n);
 
