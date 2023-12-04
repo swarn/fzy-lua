@@ -27,7 +27,7 @@ jobs:
         python -m pip install hererocks
         python -m hererocks lua_install --${{ matrix.lua }} -rlatest
         . lua_install/bin/activate
-        luarocks install busted
+        luarocks install busted 2.1.2
 
     - name: Build
       run: |
