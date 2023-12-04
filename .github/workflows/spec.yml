@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        lua: ["5.1", "5.2", "5.3", "5.4", "luajit-2.1.0-beta3"]
+        lua: ["5.1", "5.2", "5.3", "5.4", "luajit"]
 
     steps:
     - uses: actions/checkout@v3
