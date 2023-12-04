@@ -37,4 +37,4 @@ jobs:
     - name: Test
       run: |
         . lua_install/bin/activate
-        busted test/test.lua
+        luarocks test

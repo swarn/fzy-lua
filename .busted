@@ -1,0 +1,13 @@
+return {
+    _all = {
+        coverage = false,
+        lpath = "src/?.lua;src/?/init.lua",
+    },
+    default = {
+        verbose = true,
+        ROOT = {"test"},
+    },
+    tests = {
+        verbose = true,
+    },
+}
