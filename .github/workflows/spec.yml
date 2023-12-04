@@ -38,4 +38,4 @@ jobs:
         luarocks test
       # FIXME: There seems to be a bug causing busted
       # to fail on Windows, because it can't find LuaFileSystem
-      if: runner.os ~= 'Windows'
+      if: runner.os != 'Windows'
