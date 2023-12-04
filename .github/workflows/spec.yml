@@ -11,32 +11,31 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        lua: ["lua 5.1", "lua 5.2", "lua 5.3", "lua 5.4", "luajit 2.1"]
+        lua: ["5.1", "5.2", "5.3", "5.4", "luajit-2.1.0-beta3"]
 
     steps:
     - uses: actions/checkout@v3
 
-    - name: Install Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
+    - name: Install MSVC Compiler Toolchain
+      uses: ilammy/msvc-dev-cmd@v1
+      if: runner.os == 'Windows'
 
     - name: Install Lua
-      env:
-        # luajit fails to build on macos without this
-        MACOSX_DEPLOYMENT_TARGET: "10.15"
-      run: |
-        python -m pip install hererocks
-        python -m hererocks lua_install --${{ matrix.lua }} -rlatest
-        . lua_install/bin/activate
-        luarocks install busted
+      uses: leafo/gh-actions-lua@v10
+      with:
+        luaVersion: ${{ matrix.lua }}
+
+    - name: Install Luarocks
+      # NOTE: This is a fork with Windows support
+      uses: hishamhm/gh-actions-luarocks@master
 
     - name: Build
       run: |
-        . lua_install/bin/activate
         luarocks make
 
     - name: Test
       run: |
-        . lua_install/bin/activate
-        busted test/fzy_spec.lua
+        luarocks test
+      # FIXME: There seems to be a bug causing busted
+      # to fail on Windows, because it can't find LuaFileSystem
+      if: runner.os ~= 'Windows'
