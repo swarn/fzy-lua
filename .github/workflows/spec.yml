@@ -1,6 +1,8 @@
 name: build
 
-on: [push]
+on: 
+  push:
+  pull_request:
 
 jobs:
   build:
@@ -37,4 +39,4 @@ jobs:
     - name: Test
       run: |
         . lua_install/bin/activate
-        luarocks test
+        busted test/test.lua
