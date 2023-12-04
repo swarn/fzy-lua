@@ -29,7 +29,6 @@ jobs:
         python -m pip install hererocks
         python -m hererocks lua_install --${{ matrix.lua }} -rlatest
         . lua_install/bin/activate
-        luarocks install LuaFileSystem
         luarocks install busted
 
     - name: Build
@@ -40,4 +39,4 @@ jobs:
     - name: Test
       run: |
         . lua_install/bin/activate
-        luarocks test
+        busted test/fzy_spec.lua
