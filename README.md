@@ -75,7 +75,13 @@ See [the docs](docs/fzy.md).
 ## Testing
 
 ```sh
-busted test/test.lua
+luarocks test
+```
+
+Or, without luarocks:
+
+```sh
+busted
 ```
 
 
