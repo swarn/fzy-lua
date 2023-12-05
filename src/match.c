@@ -78,7 +78,7 @@ struct match_struct
 };
 
 
-static void precompute_bonus(const char * haystack, score_t * match_bonus)
+static void precompute_bonus(char const * haystack, score_t * match_bonus)
 {
     /* Which positions are beginning of words */
     char last_ch = '/';
@@ -216,8 +216,8 @@ score_t match(char const * needle, char const * haystack, int case_sensitive)
 }
 
 score_t match_positions(
-    const char * needle,
-    const char * haystack,
+    char const * needle,
+    char const * haystack,
     index_t * positions,
     int is_case_sensitive)
 {

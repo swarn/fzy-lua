@@ -80,7 +80,7 @@ static int positions(lua_State * L)
 
 static int filter(lua_State * L)
 {
-    const char * const needle = luaL_checkstring(L, 1);
+    char const * const needle = luaL_checkstring(L, 1);
     size_t const needle_len = strlen(needle);
 
     int const haystacks_idx = 2;
