@@ -11,34 +11,44 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        lua: ["5.1", "5.2", "5.3", "5.4", "luajit"]
-        exclude:
-          - lua: luajit
-            os: windows-latest
+        lua: ["lua 5.1", "lua 5.2", "lua 5.3", "lua 5.4", "luajit 2.1"]
 
     steps:
     - uses: actions/checkout@v3
 
-    - name: Install MSVC Compiler Toolchain
+    # Without this, luarocks uses the default mingw compiler on windows. The
+    # mingw arguments luarocks uses are somehow wrong: it generates library
+    # DLLs withou error, and the lua runtime finds the DLLs, but it can't use
+    # the modules in the DLLs.
+    #
+    # This action does nothing on linux/mac.
+    - name: Install MSVC
       uses: ilammy/msvc-dev-cmd@v1
-      if: runner.os == 'Windows'
 
-    - name: Install Lua
-      uses: leafo/gh-actions-lua@v10
+    - name: Install Python
+      uses: actions/setup-python@v4
       with:
-        luaVersion: ${{ matrix.lua }}
+        python-version: '3.10'
 
-    - name: Install Luarocks
-      # NOTE: This is a fork with Windows support
-      uses: hishamhm/gh-actions-luarocks@master
+    - name: Install Lua and LuaRocks
+      env:
+        # luajit fails to build on macos without this
+        MACOSX_DEPLOYMENT_TARGET: "10.15"
+      run: |
+        python -m pip install hererocks
+        python -m hererocks env --${{ matrix.lua }} --luarocks latest
+
+    - name: Install busted
+      run: |
+        . env/bin/activate
+        luarocks install busted
 
     - name: Build
       run: |
+        . env/bin/activate
         luarocks make
 
     - name: Test
       run: |
+        . env/bin/activate
         luarocks test
-      # FIXME: There seems to be a bug causing busted
-      # to fail on Windows, because it can't find LuaFileSystem
-      if: runner.os != 'Windows'
