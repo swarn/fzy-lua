@@ -10,9 +10,6 @@
 #include "match.h"
 
 #include <ctype.h>
-#include <float.h>
-#include <math.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -26,8 +23,8 @@ int has_match(char const * needle, char const * haystack, int case_sensitive)
 
     if (! case_sensitive)
     {
-        size_t const n = strlen(needle);
-        size_t const m = strlen(haystack);
+        int const n = (int)strlen(needle);
+        int const m = (int)strlen(haystack);
 
         for (int i = 0; i < n; i++)
             needle_lower[i] = (char)tolower(needle[i]);
@@ -43,7 +40,8 @@ int has_match(char const * needle, char const * haystack, int case_sensitive)
 
     while (*needle)
     {
-        if (! (haystack = strchr(haystack, *needle++)))
+        haystack = strchr(haystack, *needle++);
+        if (! haystack)
             return 0;
 
         haystack++;
@@ -125,7 +123,7 @@ static void setup_match_struct(
 }
 
 static inline void match_row(
-    const struct match_struct * match,
+    struct match_struct const * match,
     int row,
     score_t * curr_D,
     score_t * curr_M,
@@ -150,12 +148,18 @@ static inline void match_row(
             score_t score = SCORE_MIN;
             if (i == 0)
             {
+                // The match_bonus values are computed out to the length of the
+                // haystack in precompute_bonus. The index j is less than m,
+                // the length of the haystack. So the "garbage value" warning
+                // here is false.
+                // NOLINTNEXTLINE(clang-analyzer-core.UndefinedBinaryOperatorResult)
                 score = (j * SCORE_GAP_LEADING) + match_bonus[j];
             }
             else if (j)
             {
                 /* i > 0 && j > 0*/
                 score =
+                    // NOLINTNEXTLINE(clang-analyzer-core.UndefinedBinaryOperatorResult)
                     max(last_M[j - 1] + match_bonus[j],
 
                         /* consecutive match, doesn't stack with match_bonus */
@@ -249,9 +253,9 @@ score_t match_positions(
 
     // D[][] Stores the best score for this position ending with a match.
     // M[][] Stores the best possible score at this position.
-    typedef score_t(*score_grid_t)[MATCH_MAX_LEN];
-    score_grid_t D = malloc(sizeof(score_t) * MATCH_MAX_LEN * n);
-    score_grid_t M = malloc(sizeof(score_t) * MATCH_MAX_LEN * n);
+    typedef score_t score_row_t[MATCH_MAX_LEN];
+    score_row_t * const D = malloc(sizeof(score_row_t) * n);
+    score_row_t * const M = malloc(sizeof(score_row_t) * n);
 
     score_t * last_D = NULL;
     score_t * last_M = NULL;
@@ -270,27 +274,28 @@ score_t match_positions(
     }
 
     /* backtrace to find the positions of optimal matching */
-    if (positions)
+    int match_required = 0;
+    for (int i = n - 1, j = m - 1; i >= 0; i--)
     {
-        int match_required = 0;
-        for (int i = n - 1, j = m - 1; i >= 0; i--)
+        for (; j >= 0; j--)
         {
-            for (; j >= 0; j--)
+            // There may be multiple paths which result in the optimal
+            // weight.
+            //
+            // For simplicity, we will pick the first one we encounter,
+            // the latest in the candidate string.
+            // NOLINTNEXTLINE(clang-analyzer-core.UndefinedBinaryOperatorResult)
+            if (D[i][j] != SCORE_MIN && (match_required || D[i][j] == M[i][j]))
             {
-                // There may be multiple paths which result in the optimal
-                // weight.
-                //
-                // For simplicity, we will pick the first one we encounter,
-                // the latest in the candidate string.
-                if (D[i][j] != SCORE_MIN && (match_required || D[i][j] == M[i][j]))
-                {
-                    // If this score was determined using SCORE_MATCH_CONSECUTIVE,
-                    // the previous character MUST be a match
-                    match_required =
-                        i && j && M[i][j] == D[i - 1][j - 1] + SCORE_MATCH_CONSECUTIVE;
+                // If this score was determined using SCORE_MATCH_CONSECUTIVE,
+                // the previous character MUST be a match
+                match_required =
+                    i && j && M[i][j] == D[i - 1][j - 1] + SCORE_MATCH_CONSECUTIVE;
+
+                if (positions)
                     positions[i] = j--;
-                    break;
-                }
+
+                break;
             }
         }
     }

@@ -1,12 +1,10 @@
 // The lua wrapper to the native C implementation of fzy
-//
 
 #include <stdbool.h>
 #include <string.h>
 
 #include <lauxlib.h>
 #include <lua.h>
-#include <lualib.h>
 
 #include "bonus.h"
 #include "match.h"
@@ -51,7 +49,7 @@ static int score(lua_State * L)
 
 // Given an array of `count` 0-based indices, push a table on to `L` with
 // equivalent 1-based indices.
-void push_indices(lua_State * L, index_t const * const indices, size_t count)
+void push_indices(lua_State * L, index_t const * const indices, int count)
 {
     lua_createtable(L, count, 0);
     for (int i = 0; i < count; i++)
@@ -73,7 +71,7 @@ static int positions(lua_State * L)
     index_t result[MATCH_MAX_LEN];
     score_t score = match_positions(needle, haystack, result, case_sensitive);
 
-    push_indices(L, result, strlen(needle));
+    push_indices(L, result, (int)strlen(needle));
     lua_pushnumber(L, score);
     return 2;
 }
@@ -81,11 +79,11 @@ static int positions(lua_State * L)
 static int filter(lua_State * L)
 {
     char const * const needle = luaL_checkstring(L, 1);
-    size_t const needle_len = strlen(needle);
+    int const needle_len = (int)strlen(needle);
 
     int const haystacks_idx = 2;
     luaL_checktype(L, haystacks_idx, LUA_TTABLE);
-    int const haystacks_len = lua_rawlen(L, haystacks_idx);
+    int const haystacks_len = (int)lua_rawlen(L, haystacks_idx);
 
     bool case_sensitive = false;
     if (lua_gettop(L) > 2)
