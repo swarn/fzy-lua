@@ -1,7 +1,10 @@
 ---
+WarningsAsErrors: '*'
+
 Checks: >
     *,
     -abseil-*,
+    -altera-*,
     -cppcoreguidelines-avoid-magic-numbers,
     -cppcoreguidelines-pro-bounds-constant-array-index,
     -cppcoreguidelines-pro-bounds-pointer-arithmetic,
@@ -13,14 +16,11 @@ Checks: >
     -modernize-use-trailing-return-type,
     -modernize-use-nodiscard,
     -modernize-avoid-c-arrays,
-    -readability-magic-numbers,
     -readability-braces-around-statements,
+    -readability-identifier-length,
+    -readability-magic-numbers,
     -zircon-*
 
 HeaderFilterRegex: '*'
 
 FormatStyle:     none
-
-CheckOptions:
-    - key: misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
-      value: 1
