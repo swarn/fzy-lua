@@ -24,6 +24,9 @@ jobs:
           detailed_description: |
             A Lua port of fzy's fuzzy string matching algorithm.
             This includes both a pure Lua implementation and a compiled C implementation with a Lua wrapper.
+            fzy tries to find the result the user wants by favoring consecutive
+            matches, and matches at the beginnings of words.
           copy_directories: |
             docs
           test_interpreters: "lua"
+          template: ".github/workflows/rockspec.template"
