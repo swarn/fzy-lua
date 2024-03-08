@@ -1,0 +1,28 @@
+---
+name: luarocks upload
+on:
+  push:
+    tags:
+      - 'v*'
+  pull_request: # Will test packaging without publishing on PR
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  luarocks-release:
+    runs-on: ubuntu-latest
+    name: luarocks upload
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Luarocks Upload
+        uses: nvim-neorocks/luarocks-tag-release@v5
+        env:
+          LUAROCKS_API_KEY: ${{ secrets.LUAROCKS_API_KEY }}
+        with:
+          summary: "A lua implementation of the fzy fuzzy matching algorithm"
+          detailed_description: |
+            A Lua port of fzy's fuzzy string matching algorithm.
+            This includes both a pure Lua implementation and a compiled C implementation with a Lua wrapper.
+          copy_directories: |
+            docs
+          test_interpreters: "lua"
