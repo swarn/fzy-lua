@@ -19,6 +19,7 @@ jobs:
         env:
           LUAROCKS_API_KEY: ${{ secrets.LUAROCKS_API_KEY }}
         with:
+          name: fzy
           summary: "A lua implementation of the fzy fuzzy matching algorithm"
           detailed_description: |
             A Lua port of fzy's fuzzy string matching algorithm.
